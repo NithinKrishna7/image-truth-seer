@@ -1,73 +1,61 @@
-# Welcome to your Lovable project
 
-## Project info
+# Image Forgery Detection Flask Backend
 
-**URL**: https://lovable.dev/projects/f88bdc02-5165-4201-a39c-f3b0aff13681
+This Flask backend serves your CNN + ELA model for image forgery detection.
 
-## How can I edit this code?
+## Setup
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/f88bdc02-5165-4201-a39c-f3b0aff13681) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+1. **Install dependencies:**
+```bash
+pip install -r requirements.txt
 ```
 
-**Edit a file directly in GitHub**
+2. **Place your model:**
+   - Copy your `model.keras` file to the `models/` directory
+   - Update the `MODEL_PATH` in `app.py` if needed
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. **Run the server:**
+```bash
+python app.py
+```
 
-**Use GitHub Codespaces**
+## API Endpoints
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### POST /analyze-image
+Analyzes an image for forgery detection.
 
-## What technologies are used for this project?
+**Request:**
+```json
+{
+  "image": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQ..."
+}
+```
 
-This project is built with:
+**Response:**
+```json
+{
+  "authenticity": 87.3,
+  "isForged": false,
+  "confidence": 94.2,
+  "elaScore": 0.23,
+  "elaImage": "data:image/png;base64,...",
+  "analysisTime": 2.4,
+  "probabilities": {
+    "authentic": 0.8734,
+    "tampered": 0.1266
+  }
+}
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### GET /health
+Health check endpoint.
 
-## How can I deploy this project?
+### POST /test-model
+Test endpoint to verify model loading.
 
-Simply open [Lovable](https://lovable.dev/projects/f88bdc02-5165-4201-a39c-f3b0aff13681) and click on Share -> Publish.
+## Model Details
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **Input Size:** 128x128x3 RGB images
+- **Preprocessing:** ELA with quality=90, resize, normalize by /255.0
+- **Output:** [prob_authentic, prob_tampered] with softmax
+- **Architecture:** CNN with 3 conv layers + 2 dense layers
